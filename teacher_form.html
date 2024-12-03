@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Додавання та редагування вчителя</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 40%;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Форма для додавання вчителя -->
+<div class="container">
+    <h2>Додавання вчителя</h2>
+    <form id="teacherForm" action="http://localhost:3000/addTeacher" method="POST">
+        <label for="fullName">ПІБ вчителя:</label>
+        <input type="text" id="fullName" name="fullName" required>
+
+        <label for="birthdate">Дата народження:</label>
+        <input type="date" id="birthdate" name="birthdate" required>
+
+        <label for="phonenumber">Номер телефону:</label>
+        <input type="text" id="phonenumber" name="phonenumber" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <button type="submit">Додати вчителя</button>
+    </form>
+</div>
+
+<!-- Форма для редагування вчителя -->
+<div class="container">
+    <h2>Редагування вчителя</h2>
+    <form id="editTeacherForm">
+        <label for="teacherId">ID вчителя:</label>
+        <input type="number" id="teacherId" required>
+
+        <label for="editFullName">ПІБ вчителя:</label>
+        <input type="text" id="editFullName" required>
+
+        <label for="editBirthdate">Дата народження:</label>
+        <input type="date" id="editBirthdate" required>
+
+        <label for="editPhonenumber">Номер телефону:</label>
+        <input type="text" id="editPhonenumber" required>
+
+        <label for="editEmail">Email:</label>
+        <input type="email" id="editEmail" required>
+
+        <button type="submit">Оновити вчителя</button>
+    </form>
+</div>
+
+<!-- Кнопка для видалення вчителя -->
+<div class="container">
+    <h2>Видалення вчителя</h2>
+    <label for="teacherIdToDelete">ID вчителя для видалення:</label>
+    <input type="number" id="teacherIdToDelete" required>
+    <button onclick="deleteTeacher()">Видалити вчителя</button>
+</div>
+
+<script>
+    // Функція для видалення вчителя
+    function deleteTeacher() {
+        const teacherId = document.getElementById('teacherIdToDelete').value;
+
+        if (!teacherId) {
+            alert("Будь ласка, введіть ID вчителя.");
+            return;
+        }
+
+        fetch(`http://localhost:3000/deleteTeacher/${teacherId}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Вчителя успішно видалено.");
+            } else {
+                response.text().then(text => alert(text));
+            }
+        })
+        .catch(err => {
+            console.error("Помилка видалення вчителя:", err);
+            alert("Помилка видалення вчителя.");
+        });
+    }
+
+    // Функція для редагування вчителя
+    document.getElementById("editTeacherForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const teacherId = document.getElementById("teacherId").value;
+        const fullName = document.getElementById("editFullName").value;
+        const birthdate = document.getElementById("editBirthdate").value;
+        const phonenumber = document.getElementById("editPhonenumber").value;
+        const email = document.getElementById("editEmail").value;
+
+        fetch(`http://localhost:3000/updateTeacher/${teacherId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                fullName,
+                birthdate,
+                phonenumber,
+                email,
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Дані вчителя успішно оновлено.");
+            } else {
+                response.text().then(text => alert(text));
+            }
+        })
+        .catch(err => {
+            console.error("Помилка оновлення вчителя:", err);
+            alert("Помилка оновлення вчителя.");
+        });
+    });
+</script>
+
+</body>
+</html>

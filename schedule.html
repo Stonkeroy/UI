@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Розклад</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Розклад занять</h1>
+    <label for="className">Введіть назву класу:</label>
+    <input type="text" id="className" placeholder="Наприклад, 1-А">
+    <button onclick="fetchSchedule()">Отримати розклад</button>
+
+    <div id="output"></div>
+
+    <script>
+        async function fetchSchedule() {
+            const className = document.getElementById('className').value.trim();
+            const output = document.getElementById('output');
+            output.innerHTML = ""; // Очистка перед новим запитом
+
+            if (!className) {
+                output.innerHTML = "<p class='error'>Будь ласка, введіть назву класу.</p>";
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/schedule/${className}`);
+                if (response.status === 404) {
+                    output.innerHTML = "<p class='error'>Розклад для цього класу не знайдено.</p>";
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error("Помилка отримання даних");
+                }
+
+                const schedule = await response.json();
+
+                // Створення таблиці
+                let table = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Час</th>
+                                <th>Кабінет</th>
+                                <th>Предмет</th>
+                                <th>Вчитель</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                schedule.forEach(item => {
+                    table += `
+                        <tr>
+                            <td>${item.Time}</td>
+                            <td>${item.Classroom}</td>
+                            <td>${item.Subject}</td>
+                            <td>${item.Teacher}</td>
+                        </tr>
+                    `;
+                });
+                table += `</tbody></table>`;
+
+                output.innerHTML = table;
+            } catch (error) {
+                console.error("Помилка:", error);
+                output.innerHTML = "<p class='error'>Виникла помилка при отриманні розкладу.</p>";
+            }
+        }
+    </script>
+</body>
+</html>
